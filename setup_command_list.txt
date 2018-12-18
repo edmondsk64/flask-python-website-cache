@@ -1,0 +1,179 @@
+Command list
+
+Modify EC2 inbound rule (All TCP, HTTP)
+sudo ufw allow 8001/tcp
+
+Set IP for host and client
+sudo ifconfig eth0 192.168.0.2 netmask 255.255.255.0
+sudo ifconfig eth0 192.168.0.5 netmask 255.255.255.0
+
+
+sudo apt-get update
+
+sudo apt-get install nginx supervisor python-pip python-virtualenv
+
+virtualenv venv
+
+source venv/bin/activate
+
+pip install Flask
+
+sudo nano requirements.txt
+
+requirements.txt
+
+Flask == 0.10.1
+arrow == 0.8.0
+
+sudo nano app.py
+
+pip install gunicorn
+
+gunicorn app:app -b 0.0.0.0:8001 &
+
+sudo nano /etc/nginx/sites-enabled/default
+
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        server_name ec2-13-113-191-119.ap-northeast-1.compute.amazonaws.com;
+
+	location /app {
+		proxy_pass http://ec2-13-113-191-119.ap-northeast-1.compute.amazonaws.com:8001/;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header Host $http_host;
+		proxy_http_version 1.1;
+		proxy_redirect off;
+		proxy_buffering off;
+	}
+	
+}
+	
+sudo service nginx restart
+
+sudo nano /etc/supervisor/conf.d/app.conf
+
+mkdir app
+
+[program:app]
+directory=/home/ubuntu/app
+command=/home/ubuntu/venv/bin/gunicorn app:app -b 0.0.0.0:8001
+autostart=true
+autorestart=true
+stderr_logfile=/home/ubuntu/app.err.log
+stdout_logfile=/home/ubuntu/app.out.log
+
+
+sudo supervisorctl reread
+
+sudo supervisorctl update
+
+sudo service supervisor restart
+
+sudo supervisorctl status
+
+sudo nano /etc/supervisor/supervisord.conf
+
+[inet_http_server]
+port=0.0.0.0:9001
+username=admin
+password=1234
+
+sudo service supervisor restart
+
+
+After restart:
+
+source venv/bin/activate
+sudo ifconfig eth0 192.168.0.2 netmask 255.255.255.0
+gunicorn app:app -b 0.0.0.0:8001 &
+
+After restart:
+
+source venv/bin/activate
+sudo ifconfig eth0 192.168.0.2 netmask 255.255.255.0
+
+gunicorn app:app -b 127.0.0.1:8001 &
+gunicorn app:app -b 127.0.0.1:8002 &
+
+sudo nano /etc/nginx/sites-enabled/default
+
+nginx.ini
+
+sudo service nginx restart
+
+mkdir static
+
+mkdir static/images
+
+pip install --upgrade pip
+
+pip install pillow
+
+
+sudo nano /etc/supervisor/conf.d/app.conf
+
+[program:app-8001]
+directory=/home/ubuntu/app
+command=/home/ubuntu/venv/bin/gunicorn app:app -b 127.0.0.1:8001
+autostart=true
+autorestart=true
+stderr_logfile=/home/ubuntu/app.err.log
+stdout_logfile=/home/ubuntu/app.out.log
+
+[program:app-8002]
+directory=/home/ubuntu/app
+command=/home/ubuntu/venv/bin/gunicorn app:app -b 127.0.0.1:8002
+autostart=true
+autorestart=true
+stderr_logfile=/home/ubuntu/app.err.log
+stdout_logfile=/home/ubuntu/app.out.log
+
+
+
+
+source venv/bin/activate
+
+
+pip install BeautifulSoup4
+
+pip install requests
+
+sudo apt-get install mysql-server
+
+sudo apt-get install mariadb-server
+
+pip install redis
+
+sudo apt-get install redis-server
+
+mysql -u root -p
+
+CREATE DATABASE ierg4080;
+
+USE ierg4080;
+
+CREATE TABLE urls (
+    id INT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(256) NOT NULL,
+    title VARCHAR(128) DEFAULT '',
+    description VARCHAR(512) DEFAULT '',
+    submited_at DATETIME,
+    UNIQUE (url)
+)
+
+sudo apt-get install libmysqlclient-dev python-dev
+
+pip install mysql-python
+
+
+
+
+
+
